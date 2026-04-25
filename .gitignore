@@ -18,6 +18,7 @@ pip-log.txt
 .env.*
 !.env.example
 !**/.env.example
+!frontend/.env.production.example
 
 # Build / output
 frontend/build/

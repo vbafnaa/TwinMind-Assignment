@@ -1,0 +1,14 @@
+# https://render.com/docs/blueprint-spec
+# Deploy: connect repo → New Blueprint → select render.yaml
+services:
+  - type: web
+    name: twinmind-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    envVars:
+      - key: ALLOWED_ORIGINS
+        sync: false
+        # Set in Render dashboard to your SPA origin(s), comma-separated, e.g.:
+        # https://twinmind-app.onrender.com

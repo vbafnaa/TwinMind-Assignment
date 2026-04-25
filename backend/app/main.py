@@ -17,16 +17,14 @@ from app.schemas import (
     PromptSettings,
     SuggestionsRequest,
 )
+from app.cors_util import cors_allow_origins
 from app.services import groq_openai
 
 app = FastAPI(title="TwinMind Assignment API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=cors_allow_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

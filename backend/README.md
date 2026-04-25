@@ -7,6 +7,31 @@ FastAPI service that proxies your Groq API key to:
 
 The server **never persists** API keys. The browser sends `X-Groq-Api-Key` on every request.
 
+## CORS (required for deployed SPA)
+
+Browser requests from your **frontend origin** must be listed explicitly.
+
+- **`ALLOWED_ORIGINS`** — comma-separated origins **without** trailing slashes, e.g.  
+  `https://my-app.netlify.app,https://www.example.com`
+- If unset, defaults still allow local dev: `http://localhost:3000` and `http://127.0.0.1:3000`.
+
+Set this env var wherever you host the API (Render, Railway, Fly, etc.).
+
+## Deploy (Docker)
+
+From repo root (parent of `backend/`):
+
+```bash
+docker build -t twinmind-api ./backend
+docker run --rm -p 8000:8000 -e ALLOWED_ORIGINS=https://your-spa.example.com twinmind-api
+```
+
+Health check: `curl -sS http://127.0.0.1:8000/api/health`
+
+## Deploy (Render Blueprint)
+
+Use [render.yaml](../render.yaml) in the repo root: **New → Blueprint** → pick this repository. Set **`ALLOWED_ORIGINS`** in the service environment to match your static site URL after the frontend is deployed.
+
 ## Run locally
 
 ```bash
