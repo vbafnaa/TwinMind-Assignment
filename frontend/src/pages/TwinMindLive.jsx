@@ -12,6 +12,14 @@ import {
   buildPromptPayload,
   loadTwinMindSettings,
 } from "../twinmind/storage";
+import { ChatMarkdown } from "../twinmind/ChatMarkdown";
+
+function formatRecordingTime(totalSeconds) {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}`;
+}
 
 function uid() {
   return window.crypto?.randomUUID?.() || `id-${Date.now()}-${Math.random()}`;
@@ -52,6 +60,9 @@ export default function TwinMindLive() {
   const [busyTranscribe, setBusyTranscribe] = useState(false);
   const [busySuggest, setBusySuggest] = useState(false);
   const [error, setError] = useState("");
+  /** Wall-clock seconds while mic session is active (Start → Stop). */
+  const [recordingElapsedSec, setRecordingElapsedSec] = useState(0);
+  const recordingStartedAtRef = useRef(null);
 
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
@@ -88,6 +99,22 @@ export default function TwinMindLive() {
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [transcriptLines]);
+
+  useEffect(() => {
+    if (!recording) {
+      setRecordingElapsedSec(0);
+      recordingStartedAtRef.current = null;
+      return;
+    }
+    recordingStartedAtRef.current = Date.now();
+    const id = window.setInterval(() => {
+      if (!recordingStartedAtRef.current) return;
+      setRecordingElapsedSec(
+        Math.floor((Date.now() - recordingStartedAtRef.current) / 1000)
+      );
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [recording]);
 
   const runSuggestions = useCallback(async (reason) => {
     const stored = loadTwinMindSettings();
@@ -442,13 +469,18 @@ export default function TwinMindLive() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-100 text-slate-900">
-      <header className="z-20 border-b border-slate-800 bg-[#0f172a] text-white shadow-md">
+    <div className="flex h-[100dvh] max-h-[100dvh] flex-col overflow-hidden bg-slate-100 text-slate-900">
+      <header className="z-20 shrink-0 border-b border-slate-800 bg-[#0f172a] text-white shadow-md">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <div className="flex items-center gap-3">
-            <span className="text-lg font-bold tracking-tight">TwinMind</span>
+          <div className="flex min-w-0 items-center gap-3">
+            <Link
+              to="/"
+              className="text-lg font-bold tracking-tight text-white hover:text-indigo-200"
+            >
+              TwinMind
+            </Link>
             <span className="hidden text-xs text-slate-400 sm:inline">
-              Live suggestions · assignment build
+              Live session
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -470,21 +502,27 @@ export default function TwinMindLive() {
       </header>
 
       {error && (
-        <div className="mx-auto mt-2 max-w-[1600px] px-4">
-          <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
-            {error}
-          </div>
+        <div className="shrink-0 border-b border-red-100 bg-red-50/95 px-4 py-2">
+          <div className="mx-auto max-w-[1600px] text-sm text-red-800">{error}</div>
         </div>
       )}
 
-      <main className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col gap-0 lg:flex-row lg:gap-0">
+      <main className="mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col overflow-hidden lg:flex-row">
         {/* Transcript */}
-        <section className="flex min-h-[320px] flex-1 flex-col border-slate-200 bg-white lg:min-h-0 lg:w-[34%] lg:border-r">
-          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-slate-200 bg-white lg:w-[34%] lg:border-r">
+          <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-3">
             <h2 className="text-sm font-bold uppercase tracking-wide text-slate-600">
               Transcript
             </h2>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-shrink-0 flex-wrap items-center justify-end gap-2">
+              {recording && (
+                <span
+                  className="tabular-nums text-xs font-semibold text-indigo-600"
+                  title="Recording time this session"
+                >
+                  {formatRecordingTime(recordingElapsedSec)}
+                </span>
+              )}
               {busyTranscribe && (
                 <span className="text-xs text-slate-500">Transcribing…</span>
               )}
@@ -501,7 +539,7 @@ export default function TwinMindLive() {
               </button>
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto px-4 py-3 text-sm leading-relaxed">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 text-sm leading-relaxed">
             {transcriptLines.length === 0 && (
               <p className="text-slate-500">
                 Click <strong>Start mic</strong>. Audio is captured in{" "}
@@ -522,8 +560,8 @@ export default function TwinMindLive() {
         </section>
 
         {/* Suggestions */}
-        <section className="flex min-h-[320px] flex-1 flex-col border-slate-200 bg-slate-50 lg:min-h-0 lg:w-[33%] lg:border-r">
-          <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-slate-200 bg-slate-50 lg:w-[33%] lg:border-r">
+          <div className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
             <h2 className="text-sm font-bold uppercase tracking-wide text-slate-600">
               Live suggestions
             </h2>
@@ -536,7 +574,7 @@ export default function TwinMindLive() {
               {busySuggest ? "Refreshing…" : "Refresh"}
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto px-3 py-3">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3">
             {busySuggest && suggestionBatches.length === 0 && (
               <p className="px-1 text-sm text-slate-500">Generating suggestions…</p>
             )}
@@ -580,8 +618,8 @@ export default function TwinMindLive() {
         </section>
 
         {/* Chat */}
-        <section className="flex min-h-[360px] flex-1 flex-col bg-white lg:min-h-0 lg:w-[33%]">
-          <div className="border-b border-slate-100 px-4 py-3">
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white lg:w-[33%]">
+          <div className="shrink-0 border-b border-slate-100 px-4 py-3">
             <h2 className="text-sm font-bold uppercase tracking-wide text-slate-600">
               Chat
             </h2>
@@ -590,7 +628,7 @@ export default function TwinMindLive() {
               answer with full transcript context.
             </p>
           </div>
-          <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3 text-sm">
+          <div className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-3 text-sm">
             {messages.length === 0 && (
               <p className="text-slate-500">
                 Try:{" "}
@@ -603,25 +641,31 @@ export default function TwinMindLive() {
             {messages.map((m) => (
               <div
                 key={m.id}
-                className={`max-w-[95%] rounded-2xl px-3 py-2 ${
+                className={`max-w-[min(100%,28rem)] min-w-0 rounded-2xl px-3 py-2 ${
                   m.role === "user"
-                    ? "ml-auto bg-indigo-600 text-white"
-                    : "mr-auto bg-slate-100 text-slate-900"
+                    ? "ml-auto w-fit bg-indigo-600 text-white"
+                    : "mr-auto w-full max-w-full bg-slate-100 text-slate-900"
                 }`}
               >
                 <div className="mb-1 text-[10px] font-medium opacity-70">
                   {dayjs(m.ts).format("HH:mm:ss")} · {m.role}
                 </div>
-                <div className="whitespace-pre-wrap leading-relaxed">
-                  {m.content}
-                  {m.streaming && (
-                    <span className="ml-1 inline-block h-3 w-1 animate-pulse bg-indigo-500 align-middle" />
-                  )}
-                </div>
+                {m.role === "assistant" ? (
+                  <div className="min-w-0 max-w-full overflow-hidden leading-relaxed">
+                    <ChatMarkdown inverted={false}>{m.content}</ChatMarkdown>
+                    {m.streaming && (
+                      <span className="ml-1 inline-block h-3 w-1 animate-pulse bg-indigo-600 align-middle" />
+                    )}
+                  </div>
+                ) : (
+                  <div className="min-w-0 max-w-full overflow-hidden leading-relaxed">
+                    <ChatMarkdown inverted>{m.content}</ChatMarkdown>
+                  </div>
+                )}
               </div>
             ))}
           </div>
-          <div className="border-t border-slate-100 p-3">
+          <div className="shrink-0 border-t border-slate-100 p-3">
             <div className="flex gap-2">
               <input
                 className="min-w-0 flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-inner focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"

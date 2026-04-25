@@ -1,11 +1,10 @@
-import React, { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import image from "../assets/better.png";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("flag"));
-  const ref = useRef(null);
+
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.setItem("flag", "");
@@ -14,92 +13,60 @@ export default function Navbar() {
   };
 
   return (
-    <div className="flex flex-row static no-scrollbar overflow-y-auto">
-      <header className="absolute inset-x-0 top-0 z-50 bg-gradient-to-r from-blue-600 to-blue-800">
-        <nav
-          className="flex items-center justify-between p-2 mb-1 lg:px-8 "
-          aria-label="Global"
+    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+      <nav
+        className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3"
+        aria-label="Main"
+      >
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="text-lg font-bold tracking-tight text-slate-900"
         >
-          <div className="flex lg:flex-1">
-            <a className="-m-1.5 p-1.5">
-              <span className="sr-only">Your Company</span>
-            </a>
-          </div>
-          <div className="flex lg:hidden">
+          TwinMind
+        </button>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            className="rounded-lg px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            onClick={() => navigate("/twinmind")}
+          >
+            Live session
+          </button>
+          <Link
+            to="/twinmind/settings"
+            className="rounded-lg px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+          >
+            Settings
+          </Link>
+          {!isLoggedIn ? (
+            <>
+              <button
+                type="button"
+                className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                onClick={() => navigate("/Signup")}
+              >
+                Sign up
+              </button>
+              <button
+                type="button"
+                className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500"
+                onClick={() => navigate("/Login")}
+              >
+                Log in
+              </button>
+            </>
+          ) : (
             <button
               type="button"
-              className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+              onClick={handleLogout}
             >
-              <span className="sr-only">Open main menu</span>
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                />
-              </svg>
+              Log out
             </button>
-          </div>
-          <div
-            onClick={() => {
-              navigate("/");
-            }}
-          >
-            <img
-              src={image}
-              alt="indian rail logo"
-              className="h-12 top-2 left-3 absolute"
-            />
-          </div>
-          <div className="hidden lg:flex lg:gap-x-12">
-            <a
-              className="text-md font-semibold leading-6 text-gray-200 hover:font-extrabold hover:shadow-xl transition-all ease-in duration-100 p-2 rounded-lg "
-              onClick={() => {
-                navigate("/");
-              }}
-            >
-              Home
-            </a>
-          </div>
-          {!isLoggedIn && (
-            <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-              <a
-                className="text-sm font-semibold leading-6 text-gray-100 mr-2 p-2 hover:bg-blue-500 bg-blue-600  border-white rounded-md transition-all duration-500 ease-in-out border-2 "
-                onClick={() => {
-                  navigate("/Signup");
-                }}
-              >
-                Sign Up <span aria-hidden="true"></span>
-              </a>
-              <a
-                className="text-sm font-semibold leading-6 text-gray-100 p-2 hover:bg-blue-500 bg-blue-600   border-white rounded-md transition-all duration-500 ease-in-out border-2 "
-                onClick={() => {
-                  navigate("/Login");
-                }}
-              >
-                Log in <span aria-hidden="true">&rarr;</span>
-              </a>
-            </div>
           )}
-          {isLoggedIn && (
-            <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-              <a
-                className="text-sm font-semibold leading-6 text-gray-100 mr-2 p-2 hover:bg-blue-500 bg-blue-600  border-white rounded-md transition-all duration-500 ease-in-out border-2 "
-                onClick={handleLogout}
-              >
-                Log Out <span aria-hidden="true"></span>
-              </a>
-            </div>
-          )}
-        </nav>
-      </header>
-    </div>
+        </div>
+      </nav>
+    </header>
   );
 }

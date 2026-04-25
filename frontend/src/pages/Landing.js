@@ -4,11 +4,11 @@ import Statement from "../components/Statement";
 
 export default function Landing() {
   return (
-    <div className="flex flex-col bg-gradient-to-r bg-cover bg-center from-blue-200 to-blue-100 h-max p-10">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-100 via-white to-indigo-50/60">
       <Navbar />
-      <div className="flex-grow">
+      <main className="flex flex-1 flex-col">
         <Statement />
-      </div>
+      </main>
     </div>
   );
 }

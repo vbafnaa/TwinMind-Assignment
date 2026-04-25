@@ -215,11 +215,11 @@ export const UserInterface = () => {
     <div className="flex flex-col bg-gradient-to-r bg-cover bg-center from-blue-200 to-blue-100  h-screen max-h-screen mt-6 pt-10 no-scrollbar overflow-y-auto ">
       <div className="flex justify-center items-center mx-auto p-2 my-4 rounded-3xl bg-gradient-to-r from-gray-400 via-gray-300 to-gray-500 w-3/6">
         <p className="text-gray-900 font-bold">
-          Welcome to Railway Mitra - the chat assistant for real-time-queries.
+          Welcome to TwinMind — ask questions about your session.
         </p>
       </div>
       <p className="text-gray-800 font-semibold flex justify-center items-center mx-auto ">
-        Ask any doubts regarding the Indian Railway by clicking &rarr; Get
+        Type a message or use the mic. Click &rarr; Get
         Microphone.
       </p>
       <div
