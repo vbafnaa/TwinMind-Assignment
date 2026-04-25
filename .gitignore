@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Python
+.venv/
+venv/
+**/.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Build / output
+frontend/build/
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing / coverage
+coverage/
+.nyc_output/
+
+# Misc
+*.local
