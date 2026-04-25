@@ -1,0 +1,15 @@
+# Monorepo: Netlify reads this from the repo root. `base` is the CRA app folder.
+# https://docs.netlify.com/configure-builds/overview/
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# React Router — deep links like /twinmind must serve index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

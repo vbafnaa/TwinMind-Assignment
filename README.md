@@ -48,7 +48,7 @@ Set `REACT_APP_API_URL` to your deployed API origin (no trailing slash). Remove 
 | 1 | Deploy **backend**: Docker image from [backend/Dockerfile](backend/Dockerfile), or use [render.yaml](render.yaml) Blueprint on Render. |
 | 2 | Set env **`ALLOWED_ORIGINS`** = `https://<your-static-site-host>` |
 | 3 | Build **frontend** with `REACT_APP_API_URL=https://<your-api-host>` then `npm run build` |
-| 4 | Upload **`frontend/build/`** to Netlify / Vercel / Cloudflare Pages. [frontend/netlify.toml](frontend/netlify.toml) configures SPA routing for Netlify. |
+| 4 | Upload **`frontend/build/`** to Netlify / Vercel / Cloudflare Pages. For Netlify from the **repo root**, [netlify.toml](netlify.toml) sets `base = "frontend"` and SPA fallback; [frontend/public/_redirects](frontend/public/_redirects) is also copied into `build/`. |
 
 ### Option B — Same origin (nginx)
 
